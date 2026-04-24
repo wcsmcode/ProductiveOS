@@ -6,3 +6,74 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 // Chỉ tạo 1 instance duy nhất và export nó ra
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+export const AuthService = {
+    // Đăng ký
+    async signUp(email, password, fullName) {
+        // Input validation
+        if (!email || !password || !fullName) {
+            throw new Error('Email, password, and full name are required');
+        }
+        if (password.length < 6) {
+            throw new Error('Password must be at least 6 characters');
+        }
+
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { display_name: fullName }
+            }
+        });
+        if (error) throw error;
+        return data;
+    },
+
+    // Đăng nhập
+    async signIn(email, password) {
+        // Input validation
+        if (!email || !password) {
+            throw new Error('Email and password are required');
+        }
+
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        return data;
+    },
+
+    // Lấy thông tin user hiện tại
+    async getCurrentUser() {
+        try {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            if (error) throw error;
+            return user;
+        } catch (err) {
+            console.error('Failed to get current user:', err);
+            return null;
+        }
+    },
+
+    async getSession() {
+        try {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (error) throw error;
+            return session;
+        } catch (err) {
+            console.error('Failed to get session:', err);
+            return null;
+        }
+    },
+    async signOut() {
+        try{
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
+            // Xóa sạch session ở local cho chắc
+            localStorage.clear();
+            window.location.href = '/auth/login.html';
+        } catch (err) {
+            console.error('Failed to sign out:', err);
+        }
+        
+        
+    }
+};

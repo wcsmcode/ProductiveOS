@@ -1,4 +1,4 @@
-import React from 'react';
+import {React, useState, useEffect} from 'react';
 import * as Lucide from 'lucide-react';
 
 // 1. Khuôn cho Icon App (App Icon Template)
@@ -19,15 +19,28 @@ const AppIcon = ({ iconName, label, onClick }) => {
   );
 };
 
-// 2. Thông báo Toast 
-const Toast = ({ message, icon: Icon = Lucide.Bell }) => (
-  <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999]">
-    <div className="bg-black text-white px-4 py-2 rounded-full flex items-center gap-3 min-w-[200px] shadow-lg animate-bounce-short">
-      <Icon size={16} className="text-yellow-400" />
-      <span className="text-xs font-bold tracking-tight">{message}</span>
+// 2. Thông báo Toast (cách xài: <Items.Toast message="App opened!" />)
+const Toast = ({ message, icon: Icon = Lucide.Bell }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => setIsExpanded(true), 100); // Delay nhỏ để trigger animation
+    setTimeout(() => setIsExpanded(false), 3000); // Tự ẩn sau 3 giây
+  }, []);
+  <div 
+    className={`fixed top-4 left-1/2 z-[9999] transition-all duration-500 ease-out origin-top
+      ${isExpanded 
+        ? '-translate-x-1/2 translate-y-0 scale-100 opacity-100' 
+        : '-translate-x-1/2 -translate-y-8 scale-75 opacity-0'
+      }
+    `}
+  >
+    <div className="bg-black text-white px-4 py-2 rounded-full flex items-center gap-3 min-w-[200px] shadow-lg">
+      <Icon size={16} className="text-yellow-400 shrink-0" />
+      <span className="text-xs font-bold tracking-tight whitespace-nowrap">{message}</span>
     </div>
   </div>
-);
+};
 
 // 3. Nút bấm (Brutal Button)
 const Button = ({ children, onClick, variant = "primary" }) => {
